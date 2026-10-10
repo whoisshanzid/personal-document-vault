@@ -24,8 +24,14 @@ export default function MyDocumentsPage() {
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   const handleDelete = async (doc: MergedDocument) => {
-    if (!doc.mongoId || !address) {
-      toast.error("No metadata record found for this document.");
+    if (!doc.mongoId) {
+      toast.error(
+        "This document is registered on-chain but has no metadata record to delete. Only the metadata entry can be removed — the on-chain record and IPFS file always remain."
+      );
+      return;
+    }
+    if (!address) {
+      toast.error("Connect your wallet first.");
       return;
     }
     const confirmed = window.confirm(
@@ -85,7 +91,7 @@ export default function MyDocumentsPage() {
               doc={doc}
               onShare={(d) => setModal({ doc: d, mode: "grant" })}
               onRevoke={(d) => setModal({ doc: d, mode: "revoke" })}
-              onDelete={handleDelete}
+              onDelete={doc.mongoId ? handleDelete : undefined}
               deleting={deletingId !== null && doc.mongoId === deletingId}
             />
           ))}
